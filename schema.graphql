@@ -1,0 +1,81 @@
+type Device {
+  id: ID! @id
+  power: Float
+  rvnPower: Float
+  boincPower: Float
+  createdAt: DateTime! @createdAt
+  powerRatings: [PowerRating!]!
+  powerReports: [PowerReport!]!
+  wcgid: String @unique
+  rvnid: String @unique
+  wcgKey: String
+  key: String!
+}
+
+type PowerRating {
+  id: ID! @id
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+  power: Float!
+  device: Device
+  rvnPower: Float
+  boincPower: Float
+  powerRound: PowerRound
+  consensusDetails: Json
+}
+
+type PowerReport {
+  id: ID! @id
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+  power: Float!
+  device: Device
+  rvnPower: Float
+  boincPower: Float
+  powerRound: PowerRound
+  validator: Validator
+}
+
+type PowerRound {
+  id: ID! @id
+  startTime: DateTime! @unique
+  endTime: DateTime! @unique
+  powerRatings: [PowerRating!]!
+}
+
+type Validator {
+  id: ID! @id
+  name: String!
+  key: String! @unique
+  stake: Float!
+  weight: Int!
+  powerRatings: [PowerRating!]!
+}
+
+type Globals {
+  id: ID! @id
+  createdAt: DateTime! @createdAt
+  chDifficulty:Float!
+  wcgDifficulty:Float!
+  rvnDifficulty:Float!
+  mintDifficulty:Float!
+}
+
+type CronJob {
+  id: ID! @id
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+  name: String! @unique
+  runs: [CronRun!]!
+}
+
+type CronRun {
+  id: ID! @id 
+  createdAt: DateTime! @createdAt
+  updatedAt: DateTime! @updatedAt
+  job: CronJob!
+  runtime: Int
+  results: Json
+  errors: Json
+  jobName: String
+}

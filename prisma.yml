@@ -1,0 +1,2 @@
+endpoint: http://localhost:4455
+datamodel: schema.graphql
