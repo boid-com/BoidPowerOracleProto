@@ -10,21 +10,35 @@ function eC(error,res){
 }
 
 var deviceCache = []
+var globalsCache = {}
+
 async function updateDeviceCache() {
   deviceCache = (await ax.post('https://api.boid.com/getDevices')).data
 }
-
+async function updateGlobalsCache() {
+  globalsCache = (await ax.post('https://api.boid.com/getGlobals')).data
+}
+updateGlobalsCache()
 updateDeviceCache()
 
 setInterval(el => {
   updateDeviceCache()
 },120000)
 
+setInterval(el => {
+  updateGlobalsCache()
+},12000000)
+
 
 module.exports = {
   getDevices: async (req,res) => {
     try {
       return res.json(deviceCache)
+    } catch (error) {eC(error,res)}
+  },
+  getGlobals: async (req,res) => {
+    try {
+      return res.json(globalsCache)
     } catch (error) {eC(error,res)}
   }
 }
