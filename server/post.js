@@ -2,10 +2,11 @@ const db = require('../db')
 const handleDevicePowerReport = require('./util/handleDevicePowerReport')
 
 
-function handleError(){
+function eC(error,res){
   if (!error.message) error = {message:error}
   console.error(error.message)
-  return res.json({error:error.message})
+  res.statusCode = 500
+  res.json({error:error.message})
 }
 
 module.exports = {
@@ -18,6 +19,6 @@ module.exports = {
         return res.json({powerReport})
       }
       return res.json({success:true})
-    } catch (error) { handleError(error) }
+    } catch (error) {eC(error,res)}
   }
 }

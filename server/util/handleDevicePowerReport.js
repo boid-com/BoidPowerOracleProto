@@ -1,6 +1,6 @@
 
 const ecc = require('eosjs-ecc')
-const validatorKeys = ['EOS7amPpRPLe3F2k6D3ctiS9uoa3XpeB4ePPYXtY7bsqkzDuV4tF8']
+const validatorKeys = ['EOS7amPpRPLe3F2k6D3ctiS9uoa3XpeB4ePPYXtY7bsqkzDuV4tF8','EOS5gvHQg4ZS8NtCvHDBURm7db1UZKSzL5Wy46H1nWZVjaKiSndAE']
 ecc.initialize()
 
 async function injestPowerReport(data,pubKey){
