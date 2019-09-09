@@ -5,7 +5,7 @@ ecc.initialize()
 
 async function injestPowerReport(data,pubKey){
   // do something important here //
-  console.log(data,pubkey)
+  console.log(data,pubKey)
 }
 
 
