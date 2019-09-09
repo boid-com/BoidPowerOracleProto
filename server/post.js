@@ -14,7 +14,7 @@ module.exports = {
     try {
       if (!req.header('auth')) return res.statusCode = 401,res.json()
       const powerReport = await handleDevicePowerReport(req.body,req.header('auth'))
-      if (powerReport.error){
+      if (powerReport && powerReport.error){
         res.statusCode = powerReport.code
         return res.json({powerReport})
       }
