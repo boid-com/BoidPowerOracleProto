@@ -7,7 +7,7 @@ ecc.initialize()
 async function injestPowerReport(data,pubKey){
   try {
     for (report of data.powerReports){
-      db.gql(``)
+      // db.gql(``)
     }
 
     // await db.gql(``)
