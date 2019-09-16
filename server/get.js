@@ -13,10 +13,14 @@ var deviceCache = []
 var globalsCache = {}
 
 async function updateDeviceCache() {
-  deviceCache = (await ax.post('https://api.boid.com/getDevices')).data
+  try {
+    deviceCache = (await ax.post('https://api.boid.com/getDevices')).data
+  } catch (error) {eC(error,res)}
 }
 async function updateGlobalsCache() {
-  globalsCache = (await ax.post('https://api.boid.com/getGlobals')).data
+  try {
+    globalsCache = (await ax.post('https://api.boid.com/getGlobals')).data
+  } catch (error) {eC(error,res)}
 }
 updateGlobalsCache()
 updateDeviceCache()
@@ -36,6 +40,7 @@ module.exports = {
       return res.json(deviceCache)
     } catch (error) {eC(error,res)}
   },
+  
   getGlobals: async (req,res) => {
     try {
       return res.json(globalsCache)

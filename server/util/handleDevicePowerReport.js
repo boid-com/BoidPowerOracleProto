@@ -18,7 +18,7 @@ async function injestPowerReport(data,pubKey){
 
     // await db.gql(``)
     // do something important here //
-    console.log(data,pubKey)
+    console.log(pubKey)
     return {}
   } catch (error) {
     return {error}
