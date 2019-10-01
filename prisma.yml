@@ -1,2 +1,2 @@
-endpoint: http://localhost:4455
+endpoint: http://localhost:4455/prisma
 datamodel: schema.graphql

@@ -1,42 +1,69 @@
 
 const ecc = require('eosjs-ecc')
 const db = require('../../db')
-const validatorKeys = [
-'EOS7amPpRPLe3F2k6D3ctiS9uoa3XpeB4ePPYXtY7bsqkzDuV4tF8',
-'EOS5gvHQg4ZS8NtCvHDBURm7db1UZKSzL5Wy46H1nWZVjaKiSndAE',
-'EOS8KBYNo9wgw1HAvVE2EAC3BKGuNjGYdehJpB4NNpMRzNM1ZoK19',
-'EOS6psvdqMiJE8XKdVVKcXAH8Gpwy5LZrMSPEYvUS1FnrbBCoEQXX',
-'EOS4w533V7jiEgB5dABJouVCTmqs7QJh2R9av4vK4EbjmeSST4z5f',
-'EOS8MTXDwTKfrF5aE47ctc7KLvLh63TQp92M1Eju3eiE7EpW84ZoK'
-]
+const ms = require('human-interval')
+const logger = require('logging').default('handleDevicePowerReport')
+
 ecc.initialize()
+
+async function getPowerRound(globals){
+  const existingPowerRound = (await db.gql(`{powerRounds(where:{startTime:"${globals.round.start}" endTime:"${globals.round.end}"}){id}}`))[0]
+  if (existingPowerRound) return existingPowerRound
+  const newPowerRound = await db.gql(`mutation{createPowerRound(data:{startTime:"${globals.round.start}" endTime:"${globals.round.end}"}){id}}`)
+  if (newPowerRound) return newPowerRound
+  else return false
+}
+
 
 async function injestPowerReport(data,pubKey){
   try {
+    const powerRound = await getPowerRound(data.globals)
+    if (!powerRound) throw("invalid PowerRound Data")
     for (report of data.powerReports){
-      // db.gql(``)
+      try {
+        const deleteExisting = await db.gql(`mutation {deleteManyPowerReports(
+        where:{
+          validator:{key:"${pubKey}"} 
+          device:{rvnid:"${report.rvnid}"} 
+          powerRound:{
+            endTime:"${data.globals.round.end}" 
+            startTime:"${data.globals.round.start}"}
+        }){count}}`)
+        if (deleteExisting && deleteExisting.count > 0) logger.info('Deleted Existing:',deleteExisting)
+        const newReport = await db.gql(`mutation{createPowerReport(data:{
+          power:${report.totalPower} device:{connect:{rvnid:"${report.rvnid}"}} rvnPower:${report.rvnPower} boincPower:${report.boincPower}
+          powerRound:{connect:{id:"${powerRound.id}"}} validator:{connect:{key:"${pubKey}"}} 
+        }){id}}`)
+        logger.info('New report',newReport)
+      } catch (error) {
+        if (!error.message) error = {message:error}
+        logger.error('Error caused by pubkey:',pubKey)
+        logger.error('Error caused by this report:',report)
+        logger.error(error.message) 
+        continue
+      }
     }
-
-    // await db.gql(``)
-    // do something important here //
-    console.log(pubKey)
     return {}
   } catch (error) {
-    return {error}
+    if (!error.message) error = {message:error}
+    logger.error('Error caused by pubkey:',pubKey)
+    logger.error(error.message)
+    throw(error)
   }
 }
 
 
 async function init(data,auth){
   try {
+    const validatorKeys = (await db.gql(`{validators{key}}`)).map(el => el.key)
     const pubKey = await ecc.recoverHash(auth,ecc.sha256(JSON.stringify(data)))
-    console.log('Validator pubkey:',pubKey)
+    logger.info('Validator pubkey:',pubKey)
     if (!validatorKeys.find(el => el == pubKey)) return {error:'Authentication Failed',code:401}
-    console.log('Data Signature Validated')
+    logger.info('Data Signature Validated')
     const result = await injestPowerReport(data,pubKey)
     return result
   } catch (error) {
-    console.log(error)
+    logger.error(error)
     return {error:"Internal server error",code:500}
   }
 

@@ -9,7 +9,7 @@ type Device {
   wcgid: String @unique
   rvnid: String @unique
   wcgKey: String
-  key: String!
+  key: String
 }
 
 type PowerRating {
@@ -22,6 +22,9 @@ type PowerRating {
   boincPower: Float
   powerRound: PowerRound
   consensusDetails: Json
+  totalWeight: Float
+  totalStake: Float
+  txid: String
 }
 
 type PowerReport {
@@ -38,8 +41,8 @@ type PowerReport {
 
 type PowerRound {
   id: ID! @id
-  startTime: DateTime! @unique
-  endTime: DateTime! @unique
+  startTime: DateTime!
+  endTime: DateTime!
   powerRatings: [PowerRating!]!
 }
 
@@ -49,7 +52,7 @@ type Validator {
   key: String! @unique
   stake: Float!
   weight: Int!
-  powerRatings: [PowerRating!]!
+  powerReports: [PowerReport!]!
 }
 
 type Globals {

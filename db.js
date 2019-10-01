@@ -5,10 +5,10 @@ const logger = require('logging').default('db')
 
 var gqlEndpoint 
 if (env.stage === 'prod') {
-  if (env.local) gqlEndpoint = 'http://localhost:4466'
+  if (env.local) gqlEndpoint = 'http://localhost:4455/prisma'
   else gqlEndpoint = 'https://api.boid.com/prisma'
 }
-else if (env.local) gqlEndpoint = 'http://localhost:4477'
+else if (env.local) gqlEndpoint = 'http://localhost:4455/prisma'
 else gqlEndpoint = 'https://api.boid.com/dev'
 logger.info(env.stage,gqlEndpoint)
 const remoteEndpoint = 'https://api.boid.com/prisma'

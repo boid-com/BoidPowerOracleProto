@@ -5,6 +5,7 @@ const logger = require('logging').default('server.get')
 function eC(error,res){
   if (!error.message) error = {message:error}
   logger.error(error.message)
+  if (!res) return
   res.statusCode = 500
   res.json({error:error.message})
 }
@@ -15,12 +16,12 @@ var globalsCache = {}
 async function updateDeviceCache() {
   try {
     deviceCache = (await ax.post('https://api.boid.com/getDevices')).data
-  } catch (error) {eC(error,res)}
+  } catch (error) {eC(error)}
 }
 async function updateGlobalsCache() {
   try {
     globalsCache = (await ax.post('https://api.boid.com/getGlobals')).data
-  } catch (error) {eC(error,res)}
+  } catch (error) {eC(error)}
 }
 updateGlobalsCache()
 updateDeviceCache()
