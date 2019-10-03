@@ -44,6 +44,7 @@ type PowerRound {
   startTime: DateTime!
   endTime: DateTime!
   powerRatings: [PowerRating!]!
+  executed: Boolean
 }
 
 type Validator {

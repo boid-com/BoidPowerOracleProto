@@ -31,8 +31,12 @@ async function injestPowerReport(data,pubKey){
         }){count}}`)
         if (deleteExisting && deleteExisting.count > 0) logger.info('Deleted Existing:',deleteExisting)
         const newReport = await db.gql(`mutation{createPowerReport(data:{
-          power:${report.totalPower} device:{connect:{rvnid:"${report.rvnid}"}} rvnPower:${report.rvnPower} boincPower:${report.boincPower}
-          powerRound:{connect:{id:"${powerRound.id}"}} validator:{connect:{key:"${pubKey}"}} 
+          power:${report.totalPower} 
+          device:{connect:{rvnid:"${report.rvnid}"}} 
+          rvnPower:${report.rvnPower} 
+          boincPower:${report.boincPower}
+          powerRound:{connect:{id:"${powerRound.id}"}} 
+          validator:{connect:{key:"${pubKey}"}} 
         }){id}}`)
         logger.info('New report',newReport)
       } catch (error) {

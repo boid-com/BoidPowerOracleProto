@@ -3,7 +3,8 @@ const logger = require('logging').default('genPowerRatings')
 const ax = require('axios')
 const env = require('../../.env.json')
 const ms = require('human-interval')
-const eosjs = require('../../eosjs')
+const broadcastPowerRating = require('./util/broadcastPowerRating')
+
 Array.prototype.shuffle = function() {
   var i = this.length, j, temp;
   if ( i == 0 ) return this;
@@ -30,12 +31,16 @@ async function getFinishedRound(){
   round.end = now.toISOString()
   round.start = new Date(Date.parse(round.end) - ms('one hour')).toISOString()
   logger.info(round)
-  return (await db.gql(`{powerRounds(where:{startTime:"${round.start}" endTime:"${round.end}"}){id}}`))[0]
-  
+  const foundRound = (await db.gql(`{powerRounds(where:{startTime:"${round.start}" endTime:"${round.end}"}){id executed}}`))[0]
+  if (foundRound.executed) console.log('Round is already executed!'),process.exit()
+  return foundRound
 }
 
 async function generatePowerRating(device,finishedRound){
-  const powerReports = await db.gql(`{powerReports(where:{device:{id:"${device.id}"} powerRound:{id:"${finishedRound.id}"}}){power rvnPower boincPower validator{name key weight stake}}}`)
+  const powerReports = await db.gql(`
+    {powerReports(where:{
+    device:{id:"${device.id}"} powerRound:{id:"${finishedRound.id}"}})
+    {power rvnPower boincPower validator{name key weight stake}}}`)
   const pr = {
     rvnPower: findMedian(powerReports.map(el => el.rvnPower)),
     boincPower: findMedian(powerReports.map(el => el.boincPower)),
@@ -50,28 +55,35 @@ async function generatePowerRating(device,finishedRound){
   return powerRating
 }
 
-async function broadcastPowerRating(){
-
-}
-
 async function init(){
   try {
     const finishedRound = await getFinishedRound()
     if (!finishedRound) throw('No valid round found')
-    const roundDevices = (await db.gql(`{devices(where:{powerReports_some:{powerRound:{id:"${finishedRound.id}"}}}){id}}`)).shuffle()
+    const roundDevices = (await db.gql(`{devices(where:{ key_not:null powerReports_some:{powerRound:{id:"${finishedRound.id}"}}}){id key}}`))
     logger.info('round devices',roundDevices.length)
-    for (device of roundDevices){
-      const powerRating = await generatePowerRating(device,finishedRound)
-      console.log(powerRating)
-      const txid = await broadcastPowerRating(powerRating)
-      console.log(txid)
-      return
+    const accounts = [...new Set(roundDevices.map(el => el.key))].shuffle()
+    logger.info('accounts Length',accounts.length)
+    for (account of accounts){
+      if (!account) continue
+      const accountDevices = roundDevices.filter(el => el.key === account)
+      var accountPower = 0
+      for (device of accountDevices) {
+        const powerRating = await generatePowerRating(device,finishedRound)
+        accountPower += powerRating.power
+        logger.info('DevicePower:',device.wcgid,powerRating.power)
+      }
+      if (accountPower === 0) continue
+      logger.info(account,accountPower)
+      const txid = await broadcastPowerRating(account,accountPower)
+      logger.info(txid)
     }
+    const executed = await db.gql(`mutation{updatePowerRound(where:{id:"${finishedRound.id}"} data:{executed:true} ) {id executed} }`)
+    logger.info(executed)
   } catch (error) {
     if (!error.message) error = {message:error}
     logger.error(error.message)
   }
 
 }
-
+module.exports = init
 if (require.main === module && process.argv[2] === 'dev') init().catch(logger.info)

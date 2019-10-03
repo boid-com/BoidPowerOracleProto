@@ -1,6 +1,6 @@
 const db = require('../../db')
 const ax = require('axios')
-ax.defaults.timeout = 20000
+ax.defaults.timeout = 30000
 const env = require('../../.env.json')
 const logger = require('logging').default('getDevices')
 
@@ -14,7 +14,7 @@ async function checkExistingDevice(device){
 
 async function addDevice(device){
   try {
-    if (await checkExistingDevice(device)) return
+    await checkExistingDevice(device)
     function checkWCGID(){
       if (!device.wcgid) return ''
       else return `wcgid:"${device.wcgid}"`
@@ -22,8 +22,8 @@ async function addDevice(device){
     const result = await db.gql(`
       mutation{upsertDevice(
         where:{rvnid:"${device.id}"} 
-        update:{${checkWCGID()}}
-        create:{ ${checkWCGID()} rvnid:"${device.id}"}
+        update:{ key:"${device.owner.payoutAccount}" ${checkWCGID()}}
+        create:{ key:"${device.owner.payoutAccount}" ${checkWCGID()} rvnid:"${device.id}"}
       ){id}}`)
     return result
   } catch (error) {
@@ -35,6 +35,7 @@ async function init(){
   logger.info('')
   logger.info('Found',devices.length,'registered devices')
   logger.info('Upserting devices into DB...')
+  console.log(devices)
   for (device of devices){await addDevice(device)}
   logger.info('finished upserting devices')
   return {results:{deviceCount:devices.length}}
