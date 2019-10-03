@@ -5,7 +5,7 @@ const cors = require('cors')
 app.use(cors())
 app.options('*', cors())
 app.use(require('body-parser').json())
-app.use(require("express-slow-down")({windowMs: ms('10 minutes'), delayAfter: 100, delayMs: 5000}))
+app.use(require("express-slow-down")({windowMs: ms('10 minutes'), delayAfter: 100, delayMs: 15000}))
 app.use(require("express-rate-limit")({windowMs: ms('10 minutes'), max: 500}))
 
 
