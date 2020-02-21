@@ -80,7 +80,7 @@ async function init () {
     }
     const executed = await db.gql(`mutation{updatePowerRound(where:{id:"${finishedRound.id}"} data:{executed:true} ) {id executed} }`)
     logger.info(executed)
-    const deleteSince = (new Date(Date.now() - ms('6 hours'))).toISOString()
+    const deleteSince = (new Date(Date.now() - ms('30 days'))).toISOString()
     db.gql(`mutation{ deleteManyPowerReports(where:{createdAt_lt:"${deleteSince}"}){count}}`)
   } catch (error) {
     if (!error.message) error = { message: error }
