@@ -3,7 +3,7 @@ const env = require('../../../.env.json')
 const eosjs = require('../../../eosjs')
 const logger = require('logging').default('broadcastPowerRating')
 
-async function init(account,power){
+async function init (account, power) {
   try {
     const result = await eosjs().api.transact(
       {
@@ -11,18 +11,18 @@ async function init(account,power){
           account: 'boidcomtoken',
           name: 'updatepower',
           authorization: [{
-            actor:'boidcomtoken',
-            permission: 'updatepower',
+            actor: 'boidcomtoken',
+            permission: 'poweroracle'
           }],
           data: {
-            acct:account,
-            boidpower:power
-          },
+            acct: account,
+            boidpower: power
+          }
         }]
       },
       {
         blocksBehind: 6,
-        expireSeconds: 30,
+        expireSeconds: 30
       }
     )
     // console.log(result)
