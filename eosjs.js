@@ -14,13 +14,10 @@ function rand (min, max) {
 }
 
 const endpoints = [
-  'https://api.eosnewyork.io',
   'https://eos.greymass.com:443',
-  'https://api.eossweden.org',
   'https://api.eosn.io',
   'https://eos.greymass.com:443',
   'https://api.eossweden.org',
-  'https://api.eosn.io'
 ]
 
 function pickEndpoint (override) {

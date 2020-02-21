@@ -17,7 +17,6 @@ Array.prototype.shuffle = function () {
   return this
 }
 
-const findAverage = (arr) => arr.reduce((acc, el) => el + acc, 0) / arr.length
 const findMedian = arr => {
   const mid = Math.floor(arr.length / 2)
   const nums = [...arr].sort((a, b) => a - b)

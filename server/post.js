@@ -11,7 +11,7 @@ function eC (error, res) {
 module.exports = {
   reportDevicePower: async (req, res) => {
     try {
-      if (!req.header('auth')) return res.statusCode = 401, res.json()
+      if (!req.header('auth')) return res.statusCode = 401, res.end()
       const powerReport = await handleDevicePowerReport(req.body, req.header('auth'))
       if (powerReport && powerReport.error) {
         res.statusCode = powerReport.code
